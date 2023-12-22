@@ -2,25 +2,24 @@
 let usuario;
 let password;
 
-//Los usuarios para poder realizar el ingreso a la página
-let usuarioAdmin = "admin";
-let usuarioCliente = "user";
-
-//La contraseña de los usuarios
-let passwordAdmin = 12345;
-let passwordCliente = 54321;
-
 //Contador de intentos de contraseña
 let errorEnPassword = 0;
+
+//Función que indica si hay error en la contraseña
+function passwordErrada() {
+    alert("Contraseña errada, intenta nuevamente");
+    errorEnPassword++;
+}
 
 //Ciclo utilizado para el conteo de intentos errados de contraseña
 while (errorEnPassword <= 2) {
     usuario = prompt("Bienvenido! Ingresa tu nombre de usuario: ").toLowerCase();
+
     //Primero se checkea si el usuario es un cliente o el administrador
-    if (usuario == usuarioAdmin) {
+    if (usuario == "admin") {
         //Checkeo de contraseñas por parte del Admin
         password = parseInt(prompt("Bienvenido Admin, ingresa tu contraseña"));
-        if (password == passwordAdmin) {
+        if (password == 12345) {
             //Ingreso correcto de usuario y contraseña, login exitoso
             alert("Bienvenido Admin, espero tengas una buena gestión");
             break;
@@ -31,13 +30,12 @@ while (errorEnPassword <= 2) {
                 break;
             }
             //Error en la contraseña, se reinicia el ciclo
-            alert("Contraseña errada, intenta nuevamente");
-            errorEnPassword++;
+            passwordErrada();
         }
-    } else if (usuario == usuarioCliente) {
+    } else if (usuario == "user") {
         //Checkeo de contraseñas por parte del cliente
         password = parseInt(prompt("Bienvenido cliente, ingresa tu contraseña"));
-        if (password == passwordCliente) {
+        if (password == 54321) {
             //Ingreso correcto de usuario y contraseña, login exitoso
             alert("Bienvenido cliente, espero tengas buen día");
             break;
@@ -48,8 +46,7 @@ while (errorEnPassword <= 2) {
                 break;
             }
             //Error en la contraseña, se reinicia el ciclo
-            alert("Contraseña errada, intenta nuevamente");
-            errorEnPassword++;
+            passwordErrada();
         }
     } else { 
         //En caso de no ser ninguno, el usuario se encuentra errado
