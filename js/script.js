@@ -81,50 +81,69 @@ if (errorEnPassword == 3) {
 
 //Lista de los productos
 const listaProductos = [
-    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0},
-    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0},
-    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0},
-    {id: 4, nombreP: "Nevera Siragon 7030", precio: 950, categoria: "Electrohogar", descuento: 0},
-    {id: 5, nombreP: "Cama", precio: 200, categoria: "Dormitorio", descuento: 0},
-    {id: 6, nombreP: "Armario", precio: 280, categoria: "Dormitorio", descuento: 0}
+    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0, stock: 5},
+    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0, stock: 8},
+    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0, stock: 0},
+    {id: 4, nombreP: "Nevera Siragon 7030", precio: 950, categoria: "Electrohogar", descuento: 0, stock: 7},
+    {id: 5, nombreP: "Cama", precio: 200, categoria: "Dormitorio", descuento: 0, stock: 15},
+    {id: 6, nombreP: "Armario", precio: 280, categoria: "Dormitorio", descuento: 0, stock: 3}
 ];
 
-const carritoDeCompras = [];
- 
-
-
+//Lista Carrito de compras
+const carritoDeCompras = [
+    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0, stock: 5},
+    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0, stock: 8},
+    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0, stock: 0}
+];
 
 //Clase Productos
 class Productos {
-    
-    constructor(lista){
+    constructor(lista) {
         this.list = listaProductos;
     } 
 
-    añadirProductoLista(invenatrio) {
+    añadirProductoLista(inventario) {
         let id = this.list.length + 1;
-        invenatrio.id = id;
+        inventario.id = id;
         
         //Producto por valor predeterminado no posee descuento
-        invenatrio.descuento = 0;
+        inventario.descuento = 0;
 
-        this.list.push(invenatrio);
+        this.list.push(inventario);
     }
 
-    eliminarProductoLista(id) {
-        const busquedaDeId = this.list.find(item => item.id === id);
+    eliminarProductoLista(producto) {
 
-        if (busquedaDeId) {
-            this.list.splice(id - 1, 1);
+        let confirmacion = confirm(`¿Estás seguro que deseas eliminar este producto?
+                                    \n- ` + producto.nombreP );
+        if (confirmacion) {
+            this.list.splice(this.list.indexOf(producto), 1);
         }
     }
 
-    mostrarProductosLista(){
+    mostrarProductosLista() {
         console.table(this.list);
     }
 
+    aplicarDescuento(id, descuento) {
+        this.list[id].precio *= (descuento / 100);
+        this.list[id].descuento += descuento;
+    }
 
+    cambiarPrecios(id, nuevoPrecio) {
+        this.list[id].precio = nuevoPrecio;
+        console.log(this.list[id]);
+    }
 
+    buscarProducto(nombre){
+        const list = this.list.filter(item => item.nombreP.toLowerCase().includes(nombre.toLowerCase()));
+        return list;
+    }
+
+    buscarCategoria(categoria) {
+        const list = this.list.filter(item => item.categoria === categoria);
+        return list;
+    }
 }
 
 class Carrito {
@@ -134,26 +153,31 @@ class Carrito {
     }
 
     añadirProductoCarrito(producto) {
-
+        if (producto.stock > 0) {
+            this.compra.push(producto);
+        } else {
+            alert("Lo sentimos, no tenemos stock de ese producto :(")
+        }
     }
 
     eliminarProductoCarrito(producto) {
-        
+        let confirmacion = confirm("¿Estás seguro que deseas sacar " + producto.nombreP + " de tu carrito?");
+        if (confirmacion) {
+            this.compra.splice(this.compra.indexOf(producto), 1);
+        }
     }
 
-    mostrarProductosCarrito(){
+    mostrarProductosCarrito() {
         console.table(this.compra);
-        console.log(this.compra[3].precio);
     }
 
-    totalDeCompra(){
+    totalDeCompra() {
         let suma = 0;
         for (let i = 0; i < this.compra.length; i++) {
             suma += this.compra[i].precio;
         }
         return suma;
     }
-
 }
 
 const prod = new Productos(listaProductos);
@@ -172,7 +196,6 @@ if (usuarioEnLogin == "admin") {
                                         \n 4. Agregar descuentos.`));
 
         if (tareaARealizar == 1) {
-
             //Productos registrados
             alert("Lista de productos generada, verifica tu consola!");
             prod.mostrarProductosLista();
@@ -189,25 +212,35 @@ if (usuarioEnLogin == "admin") {
                 let precioProducto = parseInt(prompt("Ingresa el precio del producto: "));
                 let categoriaProducto = prompt("Ingresa la categoría del producto: ");
                 prod.añadirProductoLista({nombreP: nombreProducto, precio: precioProducto, categoria: categoriaProducto});
+
             } else if (añadirOEliminar == 2) {
                 
                 let productoABorrar = parseInt(prompt("Ingresa el ID del producto que deseas eliminar: "));
                 prod.eliminarProductoLista(productoABorrar);
+            } else {
+                alert("Opción invalida, intenta nuevamente");
             }
             
             actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
         } else if (tareaARealizar == 3) {
 
+            let productoACambiar = parseInt(prompt("Ingresa el ID del producto al cual le quieres cambiar el precio"));
+            let precioActualizado = parseInt(prompt("Ingrese el nuevo precio del producto"));
 
-            alert("El total del carrito es: " + carr.totalDeCompra() );
+            prod.cambiarPrecios(productoACambiar - 1, precioActualizado);
+
             actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
-
-
         } else if (tareaARealizar == 4) {
-            alert("Paja 3");
+            
+            let productoADescontar = parseInt(prompt("Ingresa el ID del producto al cual le quieres descontar"));
+            let valorDescontar = parseInt(prompt("¿Cuanto deseas aplicar de descuento?"));
+
+            prod.aplicarDescuento(productoADescontar - 1, valorDescontar);
+
+            alert("Se ha aplicado el descuento!")
             actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
         } else {
-            // alert("Valor invalido, intente nuevamente colocando el número de la opción que desea tomar");
+            alert("Valor invalido, intente nuevamente colocando el número de la opción que desea tomar");
             actividadFinalizada = false;
         } 
 
@@ -218,30 +251,85 @@ if (usuarioEnLogin == "admin") {
     do {
         //Da a escoger al usuario que tareas realizar
         tareaARealizar = parseInt(prompt(`¿Que deseas realizar? (Ingrese un número)
-                                    \n 1. Buscar productos.
-                                    \n 2. Ver los productos en tu carrito.
-                                    \n 3. Editar productos en tu carrito.
-                                    \n 4. Ver el costo total del carrito`));
+                                        \n 1. Buscar productos.
+                                        \n 2. Administrar tu carrito.
+                                        \n 3. Ver el costo total de tu carrito.`));
     
         if (tareaARealizar == 1) {
+            let otro;
+
             alert("En tu consola aparecerán los productos disponibles!")
             prod.mostrarProductosLista();
-            let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
 
+            busquedaARealizar = parseInt(prompt(`¿Que deseas realizar? (Ingrese un número)
+                                        \n 1. Buscar por producto.
+                                        \n 2. Buscar por categoría.`));
+                                        
+            let valorBusqueda;
 
+            if (busquedaARealizar == 1) {
+                
+                valorBusqueda = prompt("¿Que producto estás buscando el día de hoy?");
+                do {
+                    let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
+                    carr.añadirProductoCarrito(prod.buscarProducto(valorBusqueda)[compra - 1]);
+                    console.log(prod.buscarProducto(valorBusqueda));
+                    otro = confirm("¿Deseas añadir otro producto?")
+                } while (otro);
+
+            } else if (busquedaARealizar == 2) {
+
+                valorBusqueda = prompt("¿Que categoría estás buscando el día de hoy?");
+                do {
+                    let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
+                    carr.añadirProductoCarrito(prod.buscarCategoria(categoria)[compra - 1]);
+                    otro = confirm("¿Deseas añadir otro producto?")
+                } while (otro);
+
+            } else {
+                alert("Valor errado, intenta nuevamente");
+            }
+
+            do {
+                let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
+                carr.añadirProductoCarrito(listaProductos[compra - 1]);
+                otro = confirm("¿Deseas añadir otro producto?")
+            } while (otro);
 
             actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+
         } else if (tareaARealizar == 2) {
+
             alert("Aquí está los productos de tu carrito, verifica tu consola!");
             carr.mostrarProductosCarrito();
-            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
-        } else if (tareaARealizar == 3) {
-            alert("Paja 2");
-            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
-        } else if (tareaARealizar == 4) {
 
+            let accionCarrito = confirm(`¿Deseas realizar alguna modificación en tu carrito?`);
+            
+            if (accionCarrito) {
+                let agregarOEliminar = parseInt(prompt(`¿Que deseas realizar?
+                                                \n 1. Agregar productos al carrito
+                                                \n 2. Eliminar productos del carrito`));
+
+                if (agregarOEliminar == 1) {
+                    alert("Selecciona la opción de buscar productos en el inicio y busca que producto deseas agregar");
+                } else if (agregarOEliminar == 2) {
+
+                    let elementoAEliminar = parseInt(prompt("Ingresa el ID del producto que deseas eliminar"));
+                    carr.eliminarProductoCarrito(carritoDeCompras[elementoAEliminar - 1]);
+                    alert("Se retiró el producto de tu lista!") 
+                }
+            }
             actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+
+        } else if (tareaARealizar == 3) {
+
+            alert("El total del carrito es: " + carr.totalDeCompra() + "$");
+            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+
+        } else {
+
+            alert("Opción errada, intente nuevamente");
+
         }
-    
     } while (actividadFinalizada == true);
 }
