@@ -11,7 +11,6 @@ let usuarioEnLogin;
 
 //Administra las tareas que va a realizar cada uno de los usuarios
 let tareaARealizar;
-let actividadFinalizada;
 
 //Contador de intentos de contraseña
 let errorEnPassword = 0;
@@ -81,7 +80,8 @@ if (errorEnPassword == 3) {
 /*                             Carrito de compras                             */
 /* -------------------------------------------------------------------------- */
 
-
+//Confirmar actividad realizada 
+const actividadFinalizada = () => {return confirm(`¿Deseas realizar alguna otra operación?`)};
 
 //Lista de los productos
 const listaProductos = [
@@ -113,12 +113,15 @@ class Productos {
     }
 
     eliminarProductoLista(producto) {
+        
+        const elementoAEliminar = this.list.find((element) => element.id === producto);
 
         let confirmacion = confirm(`¿Estás seguro que deseas eliminar este producto?
-                                    \n- ` + producto.nombreP );
+                                    \n- ` + elementoAEliminar.nombreP);
         if (confirmacion) {
-            this.list.splice(this.list.indexOf(producto), 1);
+            this.list.splice(this.list.indexOf(elementoAEliminar), 1);
         }
+        alert("¡Se ha borrado " + elementoAEliminar.nombreP + " con exito!");
     }
 
     mostrarProductosLista() {
@@ -210,7 +213,6 @@ if (usuarioEnLogin == "admin") {
             //Productos registrados
             alert("¡Lista de productos generada, verifica tu consola!");
             prod.mostrarProductosLista();
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
         } else if (tareaARealizar == 2) {
 
@@ -223,16 +225,17 @@ if (usuarioEnLogin == "admin") {
                 let precioProducto = parseInt(prompt("Ingresa el precio del producto: "));
                 let categoriaProducto = prompt("Ingresa la categoría del producto: ");
                 prod.añadirProductoLista({nombreP: nombreProducto, precio: precioProducto, categoria: categoriaProducto});
+                alert("¡Se ha registrado el producto " + nombreProducto + " con exito!");
 
             } else if (añadirOEliminar == 2) {
                 
                 let productoABorrar = parseInt(prompt("Ingresa el ID del producto que deseas eliminar: "));
                 prod.eliminarProductoLista(productoABorrar);
+
             } else {
                 alert("Opción invalida, intenta nuevamente");
             }
-            
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
+
         } else if (tareaARealizar == 3) {
 
             let productoACambiar = parseInt(prompt("Ingresa el ID del producto al cual le quieres cambiar el precio"));
@@ -240,7 +243,6 @@ if (usuarioEnLogin == "admin") {
 
             prod.cambiarPrecios(productoACambiar - 1, precioActualizado);
 
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
         } else if (tareaARealizar == 4) {
             
             let productoADescontar = parseInt(prompt("Ingresa el ID del producto al cual le quieres descontar"));
@@ -248,14 +250,13 @@ if (usuarioEnLogin == "admin") {
 
             prod.aplicarDescuento(productoADescontar - 1, valorDescontar);
 
-            alert("Se ha aplicado el descuento!")
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
+            alert("Se ha aplicado el descuento!");
+            
         } else {
             alert("Valor invalido, intente nuevamente colocando el número de la opción que desea tomar");
-            actividadFinalizada = false;
         } 
 
-    } while (actividadFinalizada == true);
+    } while (actividadFinalizada() === true);
 
 } else if (usuarioEnLogin == "user") {
     
@@ -292,8 +293,6 @@ if (usuarioEnLogin == "admin") {
 
             }
 
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
-
         } else if (tareaARealizar == 2) {
 
             let agregarOEliminar = parseInt(prompt(`¿Que deseas realizar?
@@ -309,17 +308,14 @@ if (usuarioEnLogin == "admin") {
                 carr.eliminarProductoCarrito(elementoAEliminar);
             }
 
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
-
         } else if (tareaARealizar == 3) {
 
             alert("El total del carrito es: " + carr.totalDeCompra() + "$");
-            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
         } else {
 
             alert("Opción errada, intente nuevamente");
 
         }
-    } while (actividadFinalizada == true);
+    } while (actividadFinalizada());
 }
