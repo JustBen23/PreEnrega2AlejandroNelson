@@ -108,6 +108,7 @@ class Productos {
         
         //Producto por valor predeterminado no posee descuento
         inventario.descuento = 0;
+        inventario.cantidad = 0;
 
         this.list.push(inventario);
     }
@@ -224,7 +225,8 @@ if (usuarioEnLogin == "admin") {
                 let nombreProducto = prompt("Ingresa el nombre del producto el cual deseas añadir: ");
                 let precioProducto = parseInt(prompt("Ingresa el precio del producto: "));
                 let categoriaProducto = prompt("Ingresa la categoría del producto: ");
-                prod.añadirProductoLista({nombreP: nombreProducto, precio: precioProducto, categoria: categoriaProducto});
+                let stockProducto = parseInt(prompt("Ingresa el stock del producto: "));
+                prod.añadirProductoLista({nombreP: nombreProducto, precio: precioProducto, categoria: categoriaProducto, stock: stockProducto});
                 alert("¡Se ha registrado el producto " + nombreProducto + " con exito!");
 
             } else if (añadirOEliminar == 2) {
