@@ -22,6 +22,10 @@ function passwordErrada() {
     errorEnPassword++;
 }
 
+function realizarCompra() {
+    let otro;
+}
+
 //Ciclo utilizado para el conteo de intentos errados de contraseña
 while (errorEnPassword <= 2) {
     usuario = prompt("Bienvenido! Ingresa tu nombre de usuario: ").toLowerCase();
@@ -81,20 +85,16 @@ if (errorEnPassword == 3) {
 
 //Lista de los productos
 const listaProductos = [
-    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0, stock: 5},
-    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0, stock: 8},
-    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0, stock: 0},
-    {id: 4, nombreP: "Nevera Siragon 7030", precio: 950, categoria: "Electrohogar", descuento: 0, stock: 7},
-    {id: 5, nombreP: "Cama", precio: 200, categoria: "Dormitorio", descuento: 0, stock: 15},
-    {id: 6, nombreP: "Armario", precio: 280, categoria: "Dormitorio", descuento: 0, stock: 3}
+    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0, stock: 5, cantidad: 0},
+    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0, stock: 8, cantidad: 0},
+    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0, stock: 0, cantidad: 0},
+    {id: 4, nombreP: "Nevera Siragon 7030", precio: 950, categoria: "Electrohogar", descuento: 0, stock: 7, cantidad: 0},
+    {id: 5, nombreP: "Cama", precio: 200, categoria: "Dormitorio", descuento: 0, stock: 15, cantidad: 0},
+    {id: 6, nombreP: "Armario", precio: 280, categoria: "Dormitorio", descuento: 0, stock: 3, cantidad: 0}
 ];
 
 //Lista Carrito de compras
-const carritoDeCompras = [
-    {id: 1, nombreP: "Samsung Evo 990 plus", precio: 150, categoria: "Tecnolgia", descuento: 0, stock: 5},
-    {id: 2, nombreP: "Monitor MSI Optix G241", precio: 350, categoria: "Tecnolgia", descuento: 0, stock: 8},
-    {id: 3, nombreP: "Lavadora Samsung MultiSteam™", precio: 500, categoria: "Electrohogar", descuento: 0, stock: 0}
-];
+const carritoDeCompras = [];
 
 //Clase Productos
 class Productos {
@@ -135,14 +135,10 @@ class Productos {
         console.log(this.list[id]);
     }
 
-    buscarProducto(nombre){
-        const list = this.list.filter(item => item.nombreP.toLowerCase().includes(nombre.toLowerCase()));
-        return list;
-    }
+    buscarPorCategoria(nombre) {
 
-    buscarCategoria(categoria) {
-        const list = this.list.filter(item => item.categoria === categoria);
-        return list;
+        const categoriaFiltrada = this.list.filter(element => element.categoria === nombre);
+        return categoriaFiltrada;
     }
 }
 
@@ -152,18 +148,33 @@ class Carrito {
         this.inventario = listaProductos;
     }
 
-    añadirProductoCarrito(producto) {
-        if (producto.stock > 0) {
-            this.compra.push(producto);
+    añadirProductoCarrito(nombreProducto) {
+        
+        const productoAComprar = this.inventario.find((element) => element.nombreP.toLowerCase().includes(nombreProducto));     
+        
+        const existeEnElCarrito = this.compra.find((element) => element.nombreP.toLowerCase().includes(nombreProducto));
+
+        if (existeEnElCarrito === productoAComprar) {
+            existeEnElCarrito.cantidad += 1;
         } else {
-            alert("Lo sentimos, no tenemos stock de ese producto :(")
+            if (productoAComprar.stock > 0) {
+                productoAComprar.cantidad += 1;
+                this.compra.push(productoAComprar);
+            } else {
+                alert("Lo sentimos, no tenemos stock de " + productoAComprar.nombreP + " :(")
+            }
         }
     }
 
-    eliminarProductoCarrito(producto) {
-        let confirmacion = confirm("¿Estás seguro que deseas sacar " + producto.nombreP + " de tu carrito?");
+    eliminarProductoCarrito(nombreProducto) {
+
+        const elementoAEliminar = this.compra.find((element) => element.nombreP.toLowerCase().includes(nombreProducto));
+
+        elementoAEliminar.cantidad = 0;
+        let confirmacion = confirm('¿Estás seguro que deseas sacar "' + elementoAEliminar.nombreP + '" de tu carrito?');
         if (confirmacion) {
-            this.compra.splice(this.compra.indexOf(producto), 1);
+            this.compra.splice(this.compra.indexOf(elementoAEliminar), 1);
+            alert('¡Se retiró el producto "' + elementoAEliminar.nombreP + '" de tu lista!');
         }
     }
 
@@ -180,8 +191,8 @@ class Carrito {
     }
 }
 
+//Clases
 const prod = new Productos(listaProductos);
-
 const carr = new Carrito(carritoDeCompras, listaProductos);
 
 //Validación de qué usuario se encuentra logeado
@@ -197,7 +208,7 @@ if (usuarioEnLogin == "admin") {
 
         if (tareaARealizar == 1) {
             //Productos registrados
-            alert("Lista de productos generada, verifica tu consola!");
+            alert("¡Lista de productos generada, verifica tu consola!");
             prod.mostrarProductosLista();
             actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
@@ -256,75 +267,54 @@ if (usuarioEnLogin == "admin") {
                                         \n 3. Ver el costo total de tu carrito.`));
     
         if (tareaARealizar == 1) {
-            let otro;
 
-            alert("En tu consola aparecerán los productos disponibles!")
+            alert("En tu consola aparecerán los productos disponibles!");
             prod.mostrarProductosLista();
 
-            busquedaARealizar = parseInt(prompt(`¿Que deseas realizar? (Ingrese un número)
-                                        \n 1. Buscar por producto.
-                                        \n 2. Buscar por categoría.`));
-                                        
-            let valorBusqueda;
-
+            let busquedaARealizar = parseInt(prompt(`¿Que deseas realizar? (Ingrese un número)
+                                                \n 1. Buscar por producto.
+                                                \n 2. Buscar por categoría.`));
+            
             if (busquedaARealizar == 1) {
-                
-                valorBusqueda = prompt("¿Que producto estás buscando el día de hoy?");
+
                 do {
-                    let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
-                    carr.añadirProductoCarrito(prod.buscarProducto(valorBusqueda)[compra - 1]);
-                    console.log(prod.buscarProducto(valorBusqueda));
-                    otro = confirm("¿Deseas añadir otro producto?")
+                    let compra = prompt(`¿Que producto deseas agregar a tu carrito?`).toLowerCase();
+                    carr.añadirProductoCarrito(compra);
+                    otro = confirm("¿Deseas añadir otro producto?");
                 } while (otro);
 
             } else if (busquedaARealizar == 2) {
+                
+                let nombreCategoria = prompt("Ingresa el nombre de la categoría la cual deseas filtrar: ");
+                let resultadoBusqueda = prod.buscarPorCategoria(nombreCategoria);
+                console.table(resultadoBusqueda);
+                alert("¡En tu consola aparecerá los productos filtrados!"); 
 
-                valorBusqueda = prompt("¿Que categoría estás buscando el día de hoy?");
-                do {
-                    let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
-                    carr.añadirProductoCarrito(prod.buscarCategoria(categoria)[compra - 1]);
-                    otro = confirm("¿Deseas añadir otro producto?")
-                } while (otro);
-
-            } else {
-                alert("Valor errado, intenta nuevamente");
             }
 
-            do {
-                let compra = parseInt(prompt(`Si estás interesado en algún producto ingresa su ID para añadirlo a tu carrito`))
-                carr.añadirProductoCarrito(listaProductos[compra - 1]);
-                otro = confirm("¿Deseas añadir otro producto?")
-            } while (otro);
-
-            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
         } else if (tareaARealizar == 2) {
 
-            alert("Aquí está los productos de tu carrito, verifica tu consola!");
-            carr.mostrarProductosCarrito();
+            let agregarOEliminar = parseInt(prompt(`¿Que deseas realizar?
+                                                    \n 1. Ver carrito
+                                                    \n 2. Eliminar productos del carrito`));
 
-            let accionCarrito = confirm(`¿Deseas realizar alguna modificación en tu carrito?`);
-            
-            if (accionCarrito) {
-                let agregarOEliminar = parseInt(prompt(`¿Que deseas realizar?
-                                                \n 1. Agregar productos al carrito
-                                                \n 2. Eliminar productos del carrito`));
+            if (agregarOEliminar == 1) {
+                alert("¡Aquí está los productos de tu carrito, verifica tu consola!");
+                carr.mostrarProductosCarrito();
+            } else if (agregarOEliminar == 2) {
 
-                if (agregarOEliminar == 1) {
-                    alert("Selecciona la opción de buscar productos en el inicio y busca que producto deseas agregar");
-                } else if (agregarOEliminar == 2) {
-
-                    let elementoAEliminar = parseInt(prompt("Ingresa el ID del producto que deseas eliminar"));
-                    carr.eliminarProductoCarrito(carritoDeCompras[elementoAEliminar - 1]);
-                    alert("Se retiró el producto de tu lista!") 
-                }
+                let elementoAEliminar = prompt("¿Que producto deseas eliminar?").toLowerCase();
+                carr.eliminarProductoCarrito(elementoAEliminar);
             }
-            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+
+            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
         } else if (tareaARealizar == 3) {
 
             alert("El total del carrito es: " + carr.totalDeCompra() + "$");
-            actividadFinalizada = confirm(`Deseas realizar alguna otra operación?`);
+            actividadFinalizada = confirm(`¿Deseas realizar alguna otra operación?`);
 
         } else {
 
