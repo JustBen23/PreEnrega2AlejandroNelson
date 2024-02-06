@@ -5,6 +5,8 @@
 //Variables para utilizar para el inicio de sesión
 let usuario;
 let password;
+//ggs
+
 
 //Verificar que usuario se encuentra en login
 let usuarioEnLogin;
